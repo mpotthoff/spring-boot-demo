@@ -1,0 +1,112 @@
+stages:
+  - compile
+  - test
+  - package
+  - docker
+  - deploy
+
+cache:
+  paths:
+    - .m2/repository
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+compile:
+  stage: compile
+  image: openjdk:13-jdk-slim
+  script:
+    - ./mvnw -B -V -U -e resources:resources compiler:compile compiler:testCompile
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - target
+
+test:checkstyle:
+  stage: test
+  image: openjdk:13-jdk-slim
+  dependencies:
+    - compile
+  script:
+    - ./mvnw -B -V -U -e checkstyle:check
+  artifacts:
+    when: on_failure
+    paths:
+      - target/checkstyle-result.xml
+
+test:spotbugs:
+  stage: test
+  image: openjdk:13-jdk-slim
+  dependencies:
+    - compile
+  script:
+    - ./mvnw -B -V -U -e spotbugs:check
+  artifacts:
+    when: on_failure
+    paths:
+      - target/spotbugsXml.xml
+
+test:unit:
+  stage: test
+  image: openjdk:13-jdk-slim
+  dependencies:
+    - compile
+  script:
+    - ./mvnw -B -V -U -e surefire:test
+  artifacts:
+    reports:
+      junit: target/surefire-reports/*.xml
+
+test:integration:
+  stage: test
+  image: jdk-chromedriver:13-jdk-slim // See Dockerfile.chromedriver-13-jdk-slim
+  dependencies:
+    - compile
+  script:
+    - ./mvnw -B -V -U -e failsafe:integration-test failsafe:verify
+  artifacts:
+    reports:
+      junit: target/failsafe-reports/*.xml
+
+package:
+  stage: package
+  image: openjdk:13-jdk-slim
+  dependencies:
+    - compile
+  script:
+    - ./mvnw -B -V -U -e jar:jar spring-boot:repackage
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - target/imgshare-*.jar
+
+docker:
+  stage: docker
+  image: docker:latest
+  dependencies:
+    - package
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build . -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  dependencies: []
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest
+  only:
+    - master
+  environment:
+    name: production
+    url: https://imgshare.fb5.it

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="initial_schema" author="mp">
+        <createSequence sequenceName="seq_user" startValue="1" incrementBy="1"/>
+        <createTable tableName="user">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user"/>
+            </column>
+            <column name="username" type="varchar(31)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="email" type="varchar(320)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="char(60)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createSequence sequenceName="seq_image" startValue="1" incrementBy="1"/>
+        <createTable tableName="image">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_image"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_image__user_id" references="user(id)"/>
+            </column>
+            <column name="upload_timestamp" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data" type="longblob">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createSequence sequenceName="seq_album" startValue="1" incrementBy="1"/>
+        <createTable tableName="album">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_album"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_album__user_id" references="user(id)"/>
+            </column>
+            <column name="cover_image_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_album__cover_image_id" references="image(id)"/>
+            </column>
+            <column name="creation_timestamp" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="edit_timestamp" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="title" type="varchar(63)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="visibility" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createSequence sequenceName="seq_comment" startValue="1" incrementBy="1"/>
+        <createTable tableName="comment">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_comment"/>
+            </column>
+            <column name="album_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_comment__album_id" references="album(id)"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_comment__user_id" references="user(id)"/>
+            </column>
+            <column name="creation_timestamp" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="text" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="user_favorite">
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_user_favorite__user_id" references="user(id)" primaryKey="true" primaryKeyName="pk_user_favorite"/>
+            </column>
+            <column name="album_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_user_favorite__album_id" references="album(id)" primaryKey="true" primaryKeyName="pk_user_favorite"/>
+            </column>
+            <column name="favorite_timestamp" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="comment_vote">
+            <column name="comment_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_comment_vote__comment_id" references="comment(id)" primaryKey="true" primaryKeyName="pk_comment_vote"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_comment_vote__user_id" references="user(id)" primaryKey="true" primaryKeyName="pk_comment_vote"/>
+            </column>
+            <column name="vote" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="album_vote">
+            <column name="album_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_album_vote__album_id" references="album(id)" primaryKey="true" primaryKeyName="pk_album_vote"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_album_vote__user_id" references="user(id)" primaryKey="true" primaryKeyName="pk_album_vote"/>
+            </column>
+            <column name="vote" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="album_image">
+            <column name="album_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_album_image__album_id" references="album(id)" primaryKey="true" primaryKeyName="pk_album_image"/>
+            </column>
+            <column name="position" type="int">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_album_image"/>
+            </column>
+            <column name="image_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_album_image__image_id" references="image(id)"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="album_tag">
+            <column name="album_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_album_tag__album_id" references="album(id)" primaryKey="true" primaryKeyName="pk_album_tag"/>
+            </column>
+            <column name="tag" type="varchar(31)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_album_tag"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

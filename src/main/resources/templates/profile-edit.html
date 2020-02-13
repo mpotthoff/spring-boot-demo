@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, _, ~{::section}, 'profile')}">
+<head>
+    <title th:text="|${user.username} - imgshare|">Username - imgshare</title>
+</head>
+<body>
+<section>
+    <h1 class="text-center mt-4 mb-3" th:text="${user.username}"></h1>
+
+    <div class="container">
+        <ul class="nav nav-tabs mb-2">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/me/images}">Images</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/me/albums}">Albums</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/me/favorites}">Favorites</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" th:href="@{/me/edit}">Settings</a>
+            </li>
+        </ul>
+
+        <div class="container mt-5 col-sm-11 col-md-8 col-lg-6 col-xl-5">
+            <form  method="POST" th:action="@{/me/edit}" th:object="${edit}">
+                <div>
+                    <div class="form-group">
+                        <label class="control-label">Email</label>
+                        <input th:field="*{email}" type="email" class="form-control" th:class="|form-control ${#fields.hasErrors('email')?'is-invalid':''}|"/>
+                        <div th:each="error : ${#fields.errors('email')}" class="invalid-feedback" th:text="${error}">
+                            Validation error
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Password</label>
+                        <input placeholder="Password" th:field="*{password}" type="password" class="form-control" th:class="|form-control ${#fields.hasErrors('password')?'is-invalid':''}|"/>
+                        <div th:each="error : ${#fields.errors('password')}" class="invalid-feedback" th:text="${error}">
+                            Validation error
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Confirm Password</label>
+                        <input placeholder="Confirm password" th:field="*{matchingPassword}" type="password" class="form-control" th:class="|form-control ${#fields.hasErrors('matchingPassword')?'is-invalid':''}|"/>
+                        <div th:each="error : ${#fields.errors('matchingPassword')}" class="invalid-feedback" th:text="${error}">
+                            Validation error
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-lg btn-primary btn-block">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>

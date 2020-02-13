@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{fragments/layout :: layout(~{::title}, _, ~{::section}, _)}"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create album - imgshare</title>
+</head>
+<body>
+<section>
+    <div class="container mt-4 mb-4">
+        <form method="post" th:object="${album}" th:action="@{/a/create}">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 class="form-heading">Create album</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Title</label>
+                        <input autofocus required placeholder="Title" th:field="${album.title}" th:class="|form-control ${#fields.hasErrors('title')?'is-invalid':''}|"/>
+                        <div th:each="error : ${#fields.errors('title')}" class="invalid-feedback" th:text="${error}">
+                            Validation error
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Tags</label>
+                        <input placeholder="Tags" id="image-tags" th:field="${album.tags}" th:class="|form-control ${#fields.hasErrors('tags')?'is-invalid':''}|"/>
+                        <div th:each="error : ${#fields.errors('tags')}" class="invalid-feedback" th:text="${error}">
+                            Validation error
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="control-label">Description</label>
+                        <textarea class="form-control"
+                                  th:field="${album.description}" rows="3" maxlength="255"
+                                  style="resize: none;">
+                        </textarea>
+                        <div th:each="error : ${#fields.errors('description')}" class="invalid-feedback" th:text="${error}">
+                            Validation error
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="col-form-label">Visibility</label>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" id="checkbox-public"
+                                   th:field="${album.visibility}" type="radio" value="0">
+                            <label class="form-check-label" for="checkbox-public">
+                                Public
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" id="checkbox-private"
+                                   th:field="${album.visibility}" type="radio" value="1">
+                            <label class="form-check-label" for="checkbox-private">
+                                Private
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <input id="input-cover-image" type="hidden" name="coverImage" th:value="${album.coverImage}" />
+
+            <div th:each="error : ${#fields.errors('images')}" th:text="${error}" class="alert alert-warning" role="alert">
+                Validation error
+            </div>
+
+            <div th:each="error : ${#fields.errors('coverImage')}" th:text="${error}" class="alert alert-warning" role="alert">
+                Validation error
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-primary btn-block"
+                            data-target="#images-modal" data-toggle="modal"
+                            type="button">
+                        Add images
+                    </button>
+                </div>
+            </div>
+
+            <div aria-hidden="true" aria-labelledby="staticBackdropLabel" class="modal fade"
+                 data-backdrop="static"
+                 id="images-modal" role="dialog" tabindex="-1">
+                <div class="modal-dialog modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Images</h5>
+                            <button aria-label="Close" class="close" data-dismiss="modal"
+                                    type="button">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid" id="images-modal-body">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-dismiss="modal"
+                                    type="button">
+                                Close
+                            </button>
+                            <button id="images-modal-save" class="btn btn-primary" type="button">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3 mb-3">
+                <div id="album-images" class="col-md-12">
+                    <div class="album-image container border mt-2 mb-2" th:each="image, stat : ${album.images}">
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 col-sm-5 mt-sm-0 mb-sm-0 mt-2 mb-2 align-self-center">
+                                <div class="btn-toolbar justify-content-center">
+                                    <button class="btn image-cover-image" th:value="${image.id}" th:classappend="${image.id == album.coverImage ? 'btn-primary' : 'btn-outline-primary'}"><i class="fas fa-image"></i></button>
+
+                                    <div class="btn-group ml-2 mr-2">
+                                        <button class="btn btn-secondary image-move-up"><i class="fas fa-chevron-up"></i></button>
+                                        <button class="btn btn-secondary image-move-down"><i class="fas fa-chevron-down"></i></button>
+                                    </div>
+
+                                    <button class="btn btn-danger image-remove"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 align-self-center text-center">
+                                <textarea class="form-control description" name="description" rows="3" maxlength="255" style="resize: none;" th:name="|images[${stat.index}]|" th:text="${image.description}" th:field="*{images[__${stat.index}__].description}"></textarea>
+                            </div>
+                            <div class="col-lg-5 col-md-4 col-sm-3 align-self-center text-center">
+                                <input type="hidden" class="id" th:name="|images[${stat.index}]|" th:value="${image.id}" th:field="*{images[__${stat.index}__].id}" />
+                                <img th:src="@{|/i/${image.id}.png|}" class="mt-2 mb-2" style="max-height: 9em; max-width: 100%;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-success btn-block" type="submit">Create album</button>
+                </div>
+                <div class="col-md-6">
+                    <a class="btn btn-danger btn-block" th:href="@{/me/images}">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script th:src="@{/js/album-create.js}"></script>
+</section>
+</body>
+</html>

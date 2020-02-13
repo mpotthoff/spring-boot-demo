@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{fragments/layout :: layout(~{::title}, _, ~{::section}, _)}">
+<head>
+    <title th:text="|Album - ${album.title} by ${album.user.username} - imgshare|">Album by Username - imgshare</title>
+</head>
+<body>
+<section>
+    <div class="container mt-4 mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-sm-5 col-md-7 col-lg-8 text-sm-left text-center align-self-center">
+                        <h1 th:text="${album.title}" style="display: inline;">Title</h1>
+                    </div>
+                    <div class="col-sm-7 col-md-5 col-lg-4 align-self-center mt-sm-0 mt-3 mb-sm-0 mb-3">
+                        <div class="btn-toolbar justify-content-sm-end justify-content-center align-self-center" role="toolbar">
+                            <form method="post" th:action="@{|/a/${album.id}/vote|}">
+                                <div class="btn-group mr-2" role="group">
+                                    <button name="action" value="upvote" th:if="!${album.upVoted}"
+                                            type="submit" class="btn btn-outline-success"
+                                            th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                        <i class="far fa-thumbs-up"></i>
+                                    </button>
+                                    <button name="action" value="upvote" th:if="${album.upVoted}"
+                                            type="submit" class="btn btn-success"
+                                            th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                        <i class="fas fa-thumbs-up"></i>
+                                    </button>
+
+                                    <button type="button" disabled th:text="${album.voteScore}"
+                                            class="btn btn-secondary" style="min-width: 4em;">Score</button>
+
+                                    <button name="action" value="downvote" th:if="!${album.downVoted}"
+                                            type="submit" class="btn btn-outline-danger"
+                                            th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                        <i class="far fa-thumbs-down"></i>
+                                    </button>
+                                    <button name="action" value="downvote" th:if="${album.downVoted}"
+                                            type="submit" class="btn btn-danger"
+                                            th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                        <i class="fas fa-thumbs-down"></i>
+                                    </button>
+                                </div>
+                            </form>
+                            <form method="post" th:action="@{|/a/${album.id}/favorite|}">
+                                <div class="btn-group" role="group">
+                                    <button th:if="!${album.favored}" type="submit"
+                                            class="btn btn-outline-primary"
+                                            th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                        <i class="far fa-star"></i>
+                                    </button>
+                                    <button th:if="${album.favored}" type="submit" class="btn btn-primary"
+                                            th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                </div>
+                            </form>
+                            <div th:if="${user != null && album.user.id == user.id}" class="btn-group ml-2" role="group">
+                                <a th:href="@{|/a/${album.id}/edit|}" class="btn btn-outline-warning">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col text-sm-left text-center">
+                        <span th:each="tag : ${album.tags}">
+                            <a th:text="${tag}" th:href="@{|/t/${tag}|}">Tag</a>
+                        </span>
+                        <p>by <a th:text="${album.user.username}" th:href="@{|/u/${album.user.username}|}">Username</a></p>
+                    </div>
+                </div>
+
+                <div class="row" th:if="${album.description != null && !album.description.isEmpty()}">
+                    <div class="col">
+                        <hr />
+
+                        <i th:text="${album.description}">Description</i>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row" th:each="image : ${images}">
+                    <div class="col mb-1 mt-1">
+                        <img th:src="@{|/i/${image.id}.png|}" style="width: 100%;" />
+                        <p th:if="${image.description != null && !image.description.isEmpty()}" th:text="${image.description}" class="mt-3">Description</p>
+
+                        <hr />
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-sm-9 align-self-center text-center text-sm-left">
+                        <h3 id="comments">Comments</h3>
+                    </div>
+                    <div class="col-sm-3 align-self-center text-center text-sm-right">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <a class="btn btn-secondary" th:href="@{|/a/${album.id}?orderBy=new#comments|}">
+                                <input type="radio" name="sortTopButton" id="sortNewButton" autocomplete="off" th:checked="${orderBy=='new'}">New
+                            </a>
+                            <a class="btn btn-secondary" th:href="@{|/a/${album.id}?orderBy=top#comments|}">
+                                <input type="radio" name="sortTopButton" id="sortTopButton" autocomplete="off" th:checked="${orderBy=='top'}">Top
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post" sec:authorize="isAuthenticated()" th:action="@{|/a/${album.id}/comment|}">
+                    <textarea class="form-control mb-2" name="text" rows="3" maxlength="255"></textarea>
+                    <button type="submit" class="btn btn-primary btn-block">Post</button>
+
+                    <hr />
+                </form>
+
+                <div class="card mt-4" th:each="comment : ${comments}" th:id="${comment.getId()}">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-4 text-sm-left text-center align-self-center">
+                                <a th:text="${comment.user.username}" th:href="@{|/u/${comment.user.username}|}">Username</a>
+                            </div>
+                            <div class="col-sm-4 text-center align-self-center mb-2 mb-sm-0 mt-2 mt-sm-0">
+                                <form method="post" th:action="@{|/a/${album.id}/comments/${comment.id}/vote|}">
+                                    <div class="btn-group mr-2" role="group">
+                                        <button name="action" value="upvote" th:if="!${comment.upVoted}"
+                                                type="submit" class="btn btn-outline-success"
+                                                th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                            <i class="far fa-thumbs-up"></i>
+                                        </button>
+                                        <button name="action" value="upvote" th:if="${comment.upVoted}"
+                                                type="submit" class="btn btn-success"
+                                                th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                            <i class="fas fa-thumbs-up"></i>
+                                        </button>
+
+                                        <button type="button" disabled th:text="${comment.voteScore}"
+                                                class="btn btn-secondary" style="min-width: 4em;">Score</button>
+
+                                        <button name="action" value="downvote" th:if="!${comment.downVoted}"
+                                                type="submit" class="btn btn-outline-danger"
+                                                th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                            <i class="far fa-thumbs-down"></i>
+                                        </button>
+                                        <button name="action" value="downvote" th:if="${comment.downVoted}"
+                                                type="submit" class="btn btn-danger"
+                                                th:attrappend="disabled=${!#authorization.expression('isAuthenticated()') ? 'disabled' : null}">
+                                            <i class="fas fa-thumbs-down"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-sm-4 text-sm-right text-center align-self-center">
+                                <span th:text="${#temporals.format(comment.creationTimestamp, 'dd.MM.YYYY HH:mm')}">Time</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" th:text="${comment.text}">Text</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

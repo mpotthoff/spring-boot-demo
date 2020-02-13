@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, _, ~{::section}, 'home')}">
+<head>
+    <title>imgshare</title>
+</head>
+<body>
+<section>
+    <div class="container mt-4 mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row mb-4">
+                    <div class="col-sm-9 align-self-center text-center text-sm-left">
+                        <h1>imgshare</h1>
+                    </div>
+                    <div class="col-sm-3 align-self-center text-center text-sm-right">
+                        <div id="sortButtonGroup" class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <a id="sortNewButtonRef" class="btn btn-secondary" th:href="@{|/?orderBy=new|}">
+                                <input type="radio" name="sortTopButton" id="sortNewButton" autocomplete="off" th:checked="${orderBy=='new'}">New
+                            </a>
+                            <a id="sortTopButtonRef" class="btn btn-secondary" th:href="@{|/?orderBy=top|}">
+                                <input type="radio" name="sortTopButton" id="sortTopButton" autocomplete="off" th:checked="${orderBy=='top'}">Top
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:replace="fragments/album-list :: album-list"></div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

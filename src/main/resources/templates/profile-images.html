@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, _, ~{::section}, _)}">
+<head>
+    <title th:text="|${user.username} - imgshare|">Username - imgshare</title>
+</head>
+<body>
+<section>
+    <h1 class="text-center mt-4 mb-3" th:text="${user.username}"></h1>
+
+    <div class="container">
+        <ul class="nav nav-tabs mb-2">
+            <li class="nav-item">
+                <a class="nav-link active" th:href="@{/me/images}">Images</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/me/albums}">Albums</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/me/favorites}">Favorites</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/me/edit}">Settings</a>
+            </li>
+        </ul>
+
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <form th:action="@{/upload}" id="image-upload" class="dropzone" method="post">
+                    <div class="dz-message d-flex flex-column">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Drag &amp; Drop here or click
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <a th:href="@{/a/create}" class="btn btn-primary btn-block mb-3">Create Album</a>
+
+        <div class="album-list justify-content-sm-between justify-content-around">
+            <div class="card" th:each="image : ${images}">
+                <a class="text-decoration-none text-reset"
+                   th:href="@{|/i/${image.id}.png|}">
+                    <div class="card-img-top"
+                         th:style="|background: url(@{|/i/${image.id}.png|}) no-repeat center; background-size: cover; height: 10em;|"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/upload.js}"></script>
+</section>
+</body>
+</html>

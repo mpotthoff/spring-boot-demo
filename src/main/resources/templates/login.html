@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, _, ~{::section}, _)}">
+<head>
+    <title>Sign in - imgshare</title>
+</head>
+<body>
+<section>
+    <div class="container mt-4 mb-4">
+        <div class="row">
+            <div class="col-sm-11 col-md-8 col-lg-6 col-xl-5 ml-auto mr-auto">
+                <form method="POST" th:action="@{|/perform_login${redirect != null ? '?redirect='  + redirect : ''}|}" class="bg-light p-4">
+                    <h2 class="form-heading text-center mb-4">Sign in</h2>
+
+                    <hr />
+
+                    <div>
+                        <div th:if="${param.error}" class="alert alert-warning" role="alert">
+                            Invalid username / email address or password.
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Username or email address</label>
+                            <input name="username" placeholder="Username" type="text" class="form-control" autofocus id="username"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Password</label>
+                            <input name="password" placeholder="Password" type="password" class="form-control" id="password"/>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-lg btn-success btn-block" id="signIn">Sign in</button>
+
+                    <hr />
+
+                    <a role="button" th:href="@{/register}" class="btn btn-lg btn-outline-primary btn-block" id="signUp">Sign up</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

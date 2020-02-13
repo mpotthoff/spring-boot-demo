@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::link}, ~{::section}, _)}">
+<head>
+    <title th:text="|${error} - imgshare|">Error - imgshare</title>
+    <link rel="stylesheet" th:href="@{/css/error.css}">
+</head>
+<body>
+<section>
+    <div class="container mt-4 mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="error-text">
+                    <h1 class="error" th:text="|${status} ${error}|">500 Error</h1>
+                    <div class="im-sheep">
+                        <div class="top">
+                            <div class="body"></div>
+                            <div class="head">
+                                <div class="im-eye one"></div>
+                                <div class="im-eye two"></div>
+                                <div class="im-ear one"></div>
+                                <div class="im-ear two"></div>
+                            </div>
+                        </div>
+                        <div class="im-legs">
+                            <div class="im-leg"></div>
+                            <div class="im-leg"></div>
+                            <div class="im-leg"></div>
+                            <div class="im-leg"></div>
+                        </div>
+                    </div>
+                    <h4>Oops! An error occurred!</h4>
+                    <p>Sorry... The page you are looking for does not exist, has been removed or moved.</p>
+                    <a th:href="@{/}" class="btn btn-primary btn-round">Go to homepage</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

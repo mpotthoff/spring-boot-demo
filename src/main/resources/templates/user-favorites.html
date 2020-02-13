@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, _, ~{::section}, _)}">
+<head>
+   <title th:text="|${user.username} - imgshare|">Username - imgshare</title>
+</head>
+<body>
+<section>
+    <h1 class="text-center mt-4 mb-3" th:text="${user.username}"></h1>
+
+    <div class="container">
+        <ul class="nav nav-tabs mb-2">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{|/u/${user.username}/albums|}">Albums</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" th:href="@{|/u/${user.username}/favorites|}">Favorites</a>
+            </li>
+        </ul>
+
+        <div th:replace="fragments/album-list :: album-list"></div>
+    </div>
+</section>
+</body>
+</html>
